@@ -1,16 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db/connection');
+const empleadoController = require('../controllers/empleado.controller');
 
-// Obtener todos los empleados
-router.get('/', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM empleado');
-        res.json(result.rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Error al obtener empleados' });
-    }
-});
+router.get('/', empleadoController.getAllEmpleados);
+router.get('/:id', empleadoController.getEmpleadoById);
+router.post('/', empleadoController.createEmpleado);
+router.put('/:id', empleadoController.updateEmpleado);
+router.delete('/:id', empleadoController.deleteEmpleado);
 
 module.exports = router;

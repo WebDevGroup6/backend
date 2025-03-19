@@ -1,7 +1,7 @@
-const express = require("express");
-const cors = require("cors");
-const productoRoutes = require("./src/routes/productoRoutes");
-const riesgoRoutes = require("./src/routes/riesgoRoutes");
+import express from "express";
+import cors from "cors";
+import productoRoutes from "./src/routes/productoRoutes";
+import riesgoRoutes from "./src/routes/riesgoRoutes";
 
 const app = express();
 
@@ -19,4 +19,4 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Algo salió mal en el servidor" });
 });
 
-module.exports = app;
+export default app;

@@ -1,4 +1,4 @@
-const pool = require("../config/db");
+import pool from "../config/db";
 
 const getRiesgos = async (req, res) => {
   try {
@@ -29,7 +29,4 @@ const createRiesgo = async (req, res) => {
   }
 };
 
-module.exports = {
-  getRiesgos,
-  createRiesgo,
-};
+export { getRiesgos, createRiesgo };

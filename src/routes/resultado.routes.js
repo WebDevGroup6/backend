@@ -1,7 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { getAllResultados } = require('../controllers/resultado.controller');
+const resultadoController = require('../controllers/resultado.controller');
 
-router.get('/', getAllResultados); 
+router.get('/', resultadoController.getAllResultados);
+router.get('/:id', resultadoController.getResultadoById);
+router.post('/', resultadoController.createResultado);
+router.put('/:id', resultadoController.updateResultado);
+router.delete('/:id', resultadoController.deleteResultado);
 
 module.exports = router;
