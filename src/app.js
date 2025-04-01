@@ -1,21 +1,22 @@
+// src/app.js
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
-import routes from "./routes";
+import cors from "cors";
+import authRoutes from "./routes/authRoutes.js";
+import usuarioRoutes from "./routes/usuario.Routes.js";
 
 dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Middlewares
 app.use(express.json());
+app.use(cors());
 
-// Rutas de la API
-app.use("/api", routes);
+// Rutas
+app.use("/api/auth", authRoutes);
+app.use("/api/usuarios", usuarioRoutes);
 
-app.get("/", (req, res) => {
-  res.send("✅ API de Sistema de Muestras funcionando correctamente");
-});
+// Puedes agregar aquí otras rutas (empleados, proveedores, etc.)
 
 export default app;

@@ -1,130 +1,116 @@
-<<<<<<< HEAD
-import pool from "../db/connection";
+// src/controllers/empleado.controller.js
+import supabase from "../models/supabaseClient.js";
 
-const getAllEmpleados = async (req, res) => {
+// Obtener todos los empleados
+export const getEmpleados = async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM empleado");
-    res.json(result.rows);
+    const { data, error } = await supabase.from("Empleado").select("*");
+    if (error) throw error;
+    res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ message: "Error al obtener empleados", error: error.message });
   }
 };
 
-const getEmpleadoById = async (req, res) => {
+// Obtener un empleado por ID
+export const getEmpleadoById = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query(
-      "SELECT * FROM empleado WHERE id_empleado = $1",
-      [id]
-    );
-    res.json(result.rows[0]);
+    const { data, error } = await supabase
+      .from("Empleado")
+      .select("*")
+      .eq("ID_Empleado", id)
+      .single();
+    if (error) throw error;
+    res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ message: "Error al obtener el empleado", error: error.message });
   }
 };
 
-const createEmpleado = async (req, res) => {
+// Crear un nuevo empleado
+export const createEmpleado = async (req, res) => {
   try {
     const { cedula, nombre, cargo, contacto, estado } = req.body;
-    const result = await pool.query(
-      "INSERT INTO empleado (cedula, nombre, cargo, contacto, estado) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [cedula, nombre, cargo, contacto, estado]
-    );
-    res.json(result.rows[0]);
+    // Validación básica
+    if (!cedula || !nombre || !cargo || !contacto) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Los campos cedula, nombre, cargo y contacto son obligatorios.",
+        });
+    }
+    const { data, error } = await supabase
+      .from("Empleado")
+      .insert([
+        {
+          Cedula: cedula,
+          Nombre: nombre,
+          Cargo: cargo,
+          Contacto: contacto,
+          Estado: estado || "Activo",
+        },
+      ])
+      .select();
+    if (error) throw error;
+    res.status(201).json({ message: "Empleado creado exitosamente", data });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ message: "Error al crear el empleado", error: error.message });
   }
 };
 
-const updateEmpleado = async (req, res) => {
+// Actualizar un empleado
+export const updateEmpleado = async (req, res) => {
   try {
     const { id } = req.params;
     const { cedula, nombre, cargo, contacto, estado } = req.body;
-    const result = await pool.query(
-      "UPDATE empleado SET cedula=$1, nombre=$2, cargo=$3, contacto=$4, estado=$5 WHERE id_empleado=$6 RETURNING *",
-      [cedula, nombre, cargo, contacto, estado, id]
-    );
-    res.json(result.rows[0]);
+    const { data, error } = await supabase
+      .from("Empleado")
+      .update({
+        Cedula: cedula,
+        Nombre: nombre,
+        Cargo: cargo,
+        Contacto: contacto,
+        Estado: estado,
+      })
+      .eq("ID_Empleado", id)
+      .select();
+    if (error) throw error;
+    res
+      .status(200)
+      .json({ message: "Empleado actualizado exitosamente", data });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error al actualizar el empleado",
+        error: error.message,
+      });
   }
 };
 
-const deleteEmpleado = async (req, res) => {
+// Eliminar un empleado (puede ser eliminación lógica o física)
+export const deleteEmpleado = async (req, res) => {
   try {
     const { id } = req.params;
-    await pool.query("DELETE FROM empleado WHERE id_empleado = $1", [id]);
-    res.json({ message: "Empleado eliminado" });
+    // Aquí se podría implementar una eliminación lógica cambiando el estado a "Inactivo"
+    // o eliminación física usando .delete()
+    const { data, error } = await supabase
+      .from("Empleado")
+      .delete()
+      .eq("ID_Empleado", id);
+    if (error) throw error;
+    res.status(200).json({ message: "Empleado eliminado exitosamente", data });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ message: "Error al eliminar el empleado", error: error.message });
   }
 };
-
-export {
-  getAllEmpleados,
-  getEmpleadoById,
-  createEmpleado,
-  updateEmpleado,
-  deleteEmpleado,
-};
-=======
-const pool = require('../db/connection');
-
-const getAllEmpleados = async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM empleado');
-        res.json(result.rows);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-const getEmpleadoById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await pool.query('SELECT * FROM empleado WHERE id_empleado = $1', [id]);
-        res.json(result.rows[0]);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-const createEmpleado = async (req, res) => {
-    try {
-        const { cedula, nombre, cargo, contacto, estado } = req.body;
-        const result = await pool.query(
-            'INSERT INTO empleado (cedula, nombre, cargo, contacto, estado) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [cedula, nombre, cargo, contacto, estado]
-        );
-        res.json(result.rows[0]);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-const updateEmpleado = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { cedula, nombre, cargo, contacto, estado } = req.body;
-        const result = await pool.query(
-            'UPDATE empleado SET cedula=$1, nombre=$2, cargo=$3, contacto=$4, estado=$5 WHERE id_empleado=$6 RETURNING *',
-            [cedula, nombre, cargo, contacto, estado, id]
-        );
-        res.json(result.rows[0]);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-const deleteEmpleado = async (req, res) => {
-    try {
-        const { id } = req.params;
-        await pool.query('DELETE FROM empleado WHERE id_empleado = $1', [id]);
-        res.json({ message: 'Empleado eliminado' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-module.exports = { getAllEmpleados, getEmpleadoById, createEmpleado, updateEmpleado, deleteEmpleado };
->>>>>>> 09f353eb0751f506c869b041237a132c694c46af
