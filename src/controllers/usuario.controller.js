@@ -1,5 +1,6 @@
 // src/controllers/usuarioController.js
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import supabase from "../models/supabaseClient.js";
 
 // Obtener todos los usuarios
@@ -162,5 +163,53 @@ export const deleteUsuario = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error al eliminar el usuario", error: error.message });
+  }
+};
+
+// Iniciar sesión (Login)
+export const loginUsuario = async (req, res) => {
+  try {
+    const { nombre_usuario, passwrd } = req.body;
+
+    if (!nombre_usuario || !passwrd) {
+      return res.status(400).json({
+        message: "El nombre de usuario y la contraseña son requeridos.",
+      });
+    }
+
+    // Verificar si el usuario existe
+    const { data: usuario, error } = await supabase
+      .from("usuario")
+      .select("*")
+      .eq("Nombre_Usuario", nombre_usuario)
+      .single();
+
+    if (error || !usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado." });
+    }
+
+    // Verificar si la contraseña es correcta
+    const validPassword = await bcrypt.compare(passwrd, usuario.passwrd);
+    if (!validPassword) {
+      return res.status(401).json({ message: "Contraseña incorrecta." });
+    }
+
+    // Generar el token JWT
+    const token = jwt.sign(
+      {
+        id_usuario: usuario.id_usuario,
+        nombre_usuario: usuario.Nombre_Usuario,
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+    // Enviar el token
+    res.status(200).json({ message: "Inicio de sesión exitoso", token });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al iniciar sesión",
+      error: error.message,
+    });
   }
 };
