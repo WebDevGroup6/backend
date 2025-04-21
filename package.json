@@ -4,17 +4,17 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node --watch src/server.js"
+    "start": "node --watch src/app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Una plataforma web integral para la gestión de muestras de alimentos - desde la recolección hasta los resultados de análisis, construida con React, Vite y TailwindCSS para el frontend y Node.js, Express y Supabase/PostgreSQL para el backend.",
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.3",
+    "@supabase/supabase-js": "^2.49.4",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.14.1",

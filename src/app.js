@@ -1,22 +1,37 @@
-// src/app.js
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes.js";
-import usuarioRoutes from "./routes/usuario.Routes.js";
+import dotenv from "dotenv";
+import authRoutes from "./routes/auth.routes.js";
+import employeeRoutes from "./routes/employee.routes.js";
+// Import other routes as needed
 
 dotenv.config();
 
 const app = express();
 
 // Middlewares
-app.use(express.json());
-app.use(cors());
+app.use(cors()); // Enable CORS for all origins (adjust in production)
+app.use(express.json()); // Parse JSON request bodies
 
-// Rutas
+// Routes
+app.get("/", (req, res) => {
+  res.send("Backend API is running!");
+});
+
 app.use("/api/auth", authRoutes);
-app.use("/api/usuarios", usuarioRoutes);
+app.use("/api/employees", employeeRoutes);
+// Use other routes
 
-// Puedes agregar aquí otras rutas (empleados, proveedores, etc.)
+// Basic Error Handling (can be expanded)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
 
-export default app;
+const PORT = process.env.PORT || 3001; // Use 3001 as a fallback if PORT not in .env
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
+
+export default app; // Optional: export for testing
