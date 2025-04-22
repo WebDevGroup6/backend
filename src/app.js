@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth.routes.js";
 import employeeRoutes from "./routes/employee.routes.js";
 import productRoutes from "./routes/product.routes.js"; // Import product routes
 import laboratoryRoutes from "./routes/laboratory.routes.js"; // Import laboratory routes
+import muestraRoutes from "./routes/muestra.routes.js";
 // Import other routes as needed
 
 dotenv.config();
@@ -24,6 +25,11 @@ app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/products", productRoutes); // Use product routes
 app.use("/api/laboratories", laboratoryRoutes); // Use laboratory routes
+
+
+app.use("/api/muestras", muestraRoutes);
+
+
 // Use other routes
 
 // Basic Error Handling (can be expanded)
