@@ -40,6 +40,8 @@ export const getEmployeeById = async (req, res) => {
 };
 
 export const createEmployee = async (req, res) => {
+  console.log("Received request to create employee. Body:", req.body); // Log incoming data
+
   const {
     cedula,
     nombre,
@@ -51,35 +53,60 @@ export const createEmployee = async (req, res) => {
   } = req.body;
 
   if (!cedula || !nombre || !cargo || !contacto) {
-    return res
-      .status(400)
-      .json({
-        message: "Missing required fields: cedula, nombre, cargo, contacto",
-      });
+    console.error("Validation Error: Missing required fields", {
+      cedula,
+      nombre,
+      cargo,
+      contacto,
+    }); // Log validation failure
+    return res.status(400).json({
+      message: "Missing required fields: cedula, nombre, cargo, contacto",
+    });
   }
+
+  // Prepare data for Supabase, ensuring types are correct (e.g., salario is number or null)
+  const employeeDataToInsert = {
+    cedula,
+    nombre,
+    cargo,
+    contacto,
+    estado: estado || "Activo", // Default state if not provided
+    fecha_contratacion: fecha_contratacion || null, // Use null if empty
+    salario:
+      salario !== undefined && salario !== null && salario !== ""
+        ? Number(salario)
+        : null, // Convert to number or null
+  };
+
+  console.log("Data prepared for Supabase:", employeeDataToInsert); // Log data being sent to Supabase
 
   const { data, error } = await supabase
     .from("empleado")
-    .insert([
-      { cedula, nombre, cargo, contacto, estado, fecha_contratacion, salario },
-    ])
+    .insert([employeeDataToInsert]) // Use the prepared data
     .select();
 
   if (error) {
-    console.error("Error creating employee:", error);
+    console.error(
+      "Supabase Error creating employee:",
+      JSON.stringify(error, null, 2)
+    ); // Log the full error object
     if (error.code === "23505") {
-      return res
-        .status(409)
-        .json({
-          message: "Error creating employee: Cedula might already exist.",
-          details: error.details,
-        });
+      return res.status(409).json({
+        message: "Error creating employee: Cedula might already exist.",
+        details: error.details,
+        code: error.code,
+      });
     }
-    return res
-      .status(500)
-      .json({ message: "Error creating employee", error: error.message });
+    // Return a generic 500 error but include more details from the Supabase error
+    return res.status(500).json({
+      message: "Error creating employee",
+      error: error.message,
+      details: error.details, // Include details if available
+      code: error.code, // Include Supabase error code
+    });
   }
 
+  console.log("Employee created successfully in Supabase:", data); // Log success
   res
     .status(201)
     .json({ message: "Employee created successfully", employee: data[0] });
@@ -104,13 +131,11 @@ export const updateEmployee = async (req, res) => {
   if (error) {
     console.error(`Error updating employee with ID ${id}:`, error);
     if (error.code === "23505") {
-      return res
-        .status(409)
-        .json({
-          message:
-            "Error updating employee: Cedula might already exist for another employee.",
-          details: error.details,
-        });
+      return res.status(409).json({
+        message:
+          "Error updating employee: Cedula might already exist for another employee.",
+        details: error.details,
+      });
     }
     return res
       .status(500)
